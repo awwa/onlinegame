@@ -113,6 +113,6 @@ app.get('/games', function(req, res) {
 	}
 });
 
-app.listen(3000, function () {
+app.listen(app.get('port'), function () {
 	  console.log('Example app listening on port 3000!');
 });
