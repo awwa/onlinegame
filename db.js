@@ -1,11 +1,12 @@
 var db = require('mysql');
-var settings = {
-  'connectionLimit': 10,
-  'host': 'localhost',
-  'user': 'onlinegame',
-  'password': process.env.MYSQL_PASSWORD,
-  'database': 'onlinegame'
-};
+// var settings = {
+//   'connectionLimit': 10,
+//   'host': 'localhost',
+//   'user': 'onlinegame',
+//   'password': process.env.MYSQL_PASSWORD,
+//   'database': 'onlinegame'
+// };
+var settings = process.env.CLEARDB_DATABASE_URL;
 var pool = db.createPool(settings);
 
 module.exports = {

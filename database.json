@@ -1,8 +1,0 @@
-{
-  "dev": {
-    "driver": "mysql",
-    "user": "onlinegame",
-    "password": {"ENV": "MYSQL_PASSWORD"},
-    "database": "onlinegame"
-  }
-}
