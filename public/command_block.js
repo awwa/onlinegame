@@ -31,7 +31,7 @@
       //   }
       // });
 
-      xhr.open("POST", "https://onlinegame-awwa.herokuapp.com/games?room_key=uuuuuuuu");
+      xhr.open("POST", "https://onlinegame-awwa.herokuapp.com/games");
       xhr.setRequestHeader("content-type", "application/json");
       // xhr.setRequestHeader('content-type', 'text/plain');
       xhr.setRequestHeader("cache-control", "no-cache");
