@@ -41,9 +41,9 @@ app.use(function(req, res, next) {
 });
 var game = require('./models/game.js');
 
-// app.options('*', function (req, res) {
-//   res.sendStatus(200);
-// });
+app.options('*', function (req, res) {
+  res.sendStatus(200);
+});
 
 app.get( "/crossdomain.xml", onCrossDomainHandler )
 function onCrossDomainHandler( req, res ) {
