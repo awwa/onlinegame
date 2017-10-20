@@ -39,6 +39,20 @@
       xhr.send(data);
     };
 
+
+    ext.get_temp = function(location, callback) {
+        // Make an AJAX call to the Open Weather Maps API
+        $.ajax({
+              url: 'http://api.openweathermap.org/data/2.5/weather?q='+location+'&units=imperial',
+              dataType: 'jsonp',
+              success: function( weather_data ) {
+                  // Got the data - parse it and return the temperature
+                  temperature = weather_data['main']['temp'];
+                  callback(temperature);
+              }
+        });
+    };
+
     // Block and block menu descriptions
     var descriptor = {
         blocks: [
@@ -46,6 +60,7 @@
             [' ', 'my first block', 'my_first_block'],
             [' ', 'my first block2', 'hoge_block'],
             [' ', 'サーバー : %s にルームキー : %s で部屋をオープンする', 'open_room'],
+            ['R', 'current temperature in city %s', 'get_temp', 'Boston, MA'],
         ]
     };
 
