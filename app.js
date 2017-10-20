@@ -21,7 +21,7 @@ var game = require('./models/game.js');
 app.get('/', function (req, res) {
 	res.send(
     {
-      server_name: 'onlinegame-server'
+      server_hello: 'Welcome to the onlinegame server!!'
     }
   );
 });
