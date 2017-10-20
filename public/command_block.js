@@ -53,6 +53,16 @@
         });
     };
 
+    ext.get_hello = function(location, callback) {
+        // Make an AJAX call to the Open Weather Maps API
+        $.ajax({
+              url: 'http://onlinegame-awwa.herokuapp.com/',
+              success: function( response ) {
+                console.log(response);
+              }
+        });
+    };
+
     // Block and block menu descriptions
     var descriptor = {
         blocks: [
@@ -61,6 +71,7 @@
             [' ', 'my first block2', 'hoge_block'],
             [' ', 'サーバー : %s にルームキー : %s で部屋をオープンする', 'open_room'],
             ['R', 'current temperature in city %s', 'get_temp', 'Boston, MA'],
+            ['R', 'get_hello', 'get_hello', ''],
         ]
     };
 
