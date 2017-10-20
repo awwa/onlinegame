@@ -3,22 +3,10 @@ var app = express();
 var bodyParser = require('body-parser');
 var morgan = require('morgan');
 app.set('port', process.env.PORT || 3000);
-// app.use(express.static('public'));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(morgan('dev', {immediate: true}));
 
-// app.use(express.static(__dirname + '/public'));
-// CORSを許可する
-// var ALLOWED_METHODS = [
-//     'GET',
-//     'POST',
-//     'PUT',
-//     'PATCH',
-//     'DELETE',
-//     'HEAD',
-//     'OPTIONS'
-// ];
 app.use(function(req, res, next) {
 	console.log('origin: ' + req.headers.origin);
 	res.header('Access-Control-Allow-Origin', req.headers.origin);
@@ -30,23 +18,12 @@ app.use(function(req, res, next) {
 });
 var game = require('./models/game.js');
 
-// app.options('*', function (req, res) {
-//   res.sendStatus(200);
-// });
-
-// app.get( "/crossdomain.xml", onCrossDomainHandler )
-// function onCrossDomainHandler( req, res ) {
-// 	var xml = '<cross-domain-policy>' +
-// 		'<allow-access-from domain="*" to-ports="80"/>' +
-// 		'</cross-domain-policy>';
-//
-//   req.setEncoding('utf8');
-//   res.writeHead( 200, {'Content-Type': 'text/xml'} );
-//   res.end( xml );
-// }
-
 app.get('/', function (req, res) {
-	res.send('Hello World!');
+	res.send(
+    {
+      server_name: 'onlinegame-server'
+    }
+  );
 });
 
 // ゲームの待受開始
