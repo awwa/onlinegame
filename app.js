@@ -39,6 +39,7 @@ app.post('/games', function(req, res) {
 	} else {
 		res.status(400).send({error: error});
 	}
+
 });
 
 // ゲームの状態変更
