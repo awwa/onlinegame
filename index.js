@@ -17,6 +17,7 @@ app.use(function(req, res, next) {
   next();
 });
 var game = require('./models/game.js');
+var socket = require('./socket.js');
 
 app.get('/', function (req, res) {
 	res.send(
@@ -24,6 +25,27 @@ app.get('/', function (req, res) {
       server_hello: 'Welcome to the onlinegame server!!'
     }
   );
+});
+
+//パラメータ
+app.param('room_key', function(req, res, next, room_key) {
+  req.room_key = room_key;
+  next();
+});
+
+//
+app.post('/games/:room_key/open', function(req, res) {
+	if ('room_key' in req) {
+		game.openRoom(req.room_key).then(function onFulfilled(id) {
+  		console.log(id);
+  		res.send({id: id});
+		}).catch(function onRejected(error) {
+			console.log(error);
+			res.status(500).send({error: error});
+		});
+	} else {
+		res.status(400).send({error: error});
+	}
 });
 
 // ゲームの待受開始
