@@ -17,16 +17,18 @@ module.exports = {
   openRoom: function(roomKey) {
     return db.select('SELECT * FROM games WHERE `room_key` = ?', [roomKey]).then(function onFulfilled(records) {
       if (records.length === 0) {
-        return db.insert('INSERT INTO games SET ?', {room_key: roomKey});
+        return db.insert('INSERT INTO games SET ?', {room_key: roomKey}).then(function Fulfilled(id) {
+          return Promise.resolve('create');
+        });
       } else if (records.length === 1) {
         if (records[0].status === 'open') {
           // 空いていたら鍵をかけてルームに入る
           return db.update('UPDATE games SET `status` = ? WHERE `room_key` = ?', ['lock', roomKey]).then(function onFulfilled() {
-            return Promise.resolve('Enter the room');
+            return Promise.resolve('enter');
           });
         } else if (records[0].status === 'lock') {
           // 鍵がかかっていたら入室失敗
-          return Promise.reject('The room is locked');
+          return Promise.reject('rejected');
         }
       }
     });
@@ -46,8 +48,8 @@ module.exports = {
 //   console.log(JSON.stringify(error));
 // });
 
-module.exports.openRoom('newkey02').then(function onFullfilled(value) {
-  console.log(JSON.stringify(value));
-}).catch(function onRejected(error) {
-  console.log(JSON.stringify(error));
-});
+// module.exports.openRoom('newkey0').then(function onFullfilled(value) {
+//   console.log(JSON.stringify(value));
+// }).catch(function onRejected(error) {
+//   console.log(JSON.stringify(error));
+// });

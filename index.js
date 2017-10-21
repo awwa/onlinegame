@@ -10,9 +10,7 @@ var server = express()
   .use(bodyParser.urlencoded({ extended: false }))
   .use(bodyParser.json())
   .use(morgan('dev', {immediate: true}))
-  .use(express.static('public'))
   .use(function(req, res, next) {
-  	console.log('origin: ' + req.headers.origin);
   	res.header('Access-Control-Allow-Origin', req.headers.origin);
   	res.header('Access-Control-Allow-Headers', 'X-Requested-With, X-HTTP-Method-Override, Content-Type, Accept');
   	res.header('Access-Control-Allow-Methods', 'POST, GET, PUT, DELETE, OPTIONS');
@@ -20,24 +18,37 @@ var server = express()
   	res.header('Access-Control-Max-Age', '86400');
     next();
   })
+  .use(express.static('public'))
   //パラメータ
   .param('room_key', function(req, res, next, room_key) {
     req.room_key = room_key;
     next();
   })
+  // サーバへのアクセス確認用エンドポイント
   .get('/', function (req, res) {
-  	res.send(
-      {
-        server_hello: 'Welcome to the onlinegame server!!'
-      }
-    );
+  	res.send({server_hello: 'Welcome to the onlinegame server!!'});
   })
   // ルーム解説＆入室
   .post('/games/:room_key/open', function(req, res) {
   	if ('room_key' in req) {
-  		game.openRoom(req.room_key).then(function onFulfilled(id) {
-    		console.log(id);
-    		res.send({id: id});
+  		game.openRoom(req.room_key).then(function onFulfilled(result) {
+        // ルームへの入室処理結果に応じてsocketのルーム生成やjoinを制御する
+        switch (result) {
+          case 'create':  // ループをオープン
+            io.on('connection', function(socket) {
+              console.log('Client join the room ' + req.room_key);
+              socket.join(req.room_key);
+            });
+            break;
+          case 'enter':   // オープン済みのルームに入室
+            io.on('connection', function(socket) {
+              console.log('Client enter the room ' + req.room_key);
+              socket.join(req.room_key);
+              io.to(req.room_key).emit('enter');
+            });
+            break;
+        }
+    		res.send({"result": result});
   		}).catch(function onRejected(error) {
   			console.log(error);
   			res.status(500).send({error: error});
@@ -97,9 +108,10 @@ var server = express()
   });
 
 var io = socketIO(server);
+
 io.on('connection', function(socket) {
   console.log('Client connected');
   socket.on('disconnect', function() {console.log('Client disconnected');});
 });
 
-setInterval(function() {io.emit('time', new Date().toTimeString()), 1000});
+// setInterval(function() {io.emit('time', new Date().toTimeString()), 1000});
