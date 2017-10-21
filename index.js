@@ -6,7 +6,7 @@ app.set('port', process.env.PORT || 3000);
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(morgan('dev', {immediate: true}));
-
+app.use(express.static('public'));
 app.use(function(req, res, next) {
 	console.log('origin: ' + req.headers.origin);
 	res.header('Access-Control-Allow-Origin', req.headers.origin);
