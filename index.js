@@ -28,35 +28,32 @@ var server = express()
   .get('/', function (req, res) {
   	res.send({server_hello: 'Welcome to the onlinegame server!!'});
   })
-  // ルーム解説＆入室
-  .post('/games/:room_key/open', function(req, res) {
-  	if ('room_key' in req) {
-  		game.openRoom(req.room_key).then(function onFulfilled(result) {
-        // ルームへの入室処理結果に応じてsocketのルーム生成やjoinを制御する
-        switch (result) {
-          case 'create':  // ループをオープン
-            io.on('connection', function(socket) {
-              console.log('Client join the room ' + req.room_key);
-              socket.join(req.room_key);
-            });
-            break;
-          case 'enter':   // オープン済みのルームに入室
-            io.on('connection', function(socket) {
-              console.log('Client enter the room ' + req.room_key);
-              socket.join(req.room_key);
-              io.to(req.room_key).emit('enter');
-            });
-            break;
-        }
-    		res.send({"result": result});
-  		}).catch(function onRejected(error) {
-  			console.log(error);
-  			res.status(500).send({error: error});
-  		});
-  	} else {
-  		res.status(400).send({error: error});
-  	}
-  })
+  // // ルーム解説＆入室
+  // .post('/games/:room_key/open', function(req, res) {
+  // 	if ('room_key' in req) {
+  // 		game.openRoom(req.room_key).then(function onFulfilled(result) {
+  //       // ルームへの入室処理結果に応じてsocketのルーム生成やjoinを制御する
+  //       console.log(result);
+  //       // switch (result) {
+  //       //   case 'create':  // ループをオープン
+  //       //     console.log('Client join the room ' + req.room_key);
+  //       //     // io.sockets.join(req.room_key);
+  //       //     break;
+  //       //   case 'enter':   // オープン済みのルームに入室
+  //       //     console.log('Client enter the room ' + req.room_key);
+  //       //     // io.sockets.join(req.room_key);
+  //       //     io.to(req.room_key).emit('enter');
+  //       //     break;
+  //       // }
+  //   		res.send({"result": result});
+  // 		}).catch(function onRejected(error) {
+  // 			console.log(error);
+  // 			res.status(500).send({error: error});
+  // 		});
+  // 	} else {
+  // 		res.status(400).send({error: error});
+  // 	}
+  // })
 // // ゲームの待受開始
 // app.post('/games', function(req, res) {
 // 	if ('room_key' in req.body) {
@@ -111,6 +108,35 @@ var io = socketIO(server);
 
 io.on('connection', function(socket) {
   console.log('Client connected');
+  socket.on('try_create_room', function(data) {
+    game.openRoom(data.room_key).then(function onFulfilled(result) {
+      // ルームへの入室処理結果に応じてsocketのルーム生成やjoinを制御する
+      console.log('try_create_room: ' + result);
+      switch (result) {
+        case 'create':  // ループを作成
+          console.log('join: ' + data.room_key);
+          socket.join(data.room_key);
+          // socket.to(data.room_key).emit('room_created');
+          break;
+        case 'enter':   // オープン済みのルームに入室
+          console.log('join: ' + data.room_key);
+          socket.join(data.room_key);
+          // io.sockets.join(req.room_key);
+          // io.to(req.room_key).emit('enter');
+          break;
+      }
+      // res.send({"result": result});
+    }).catch(function onRejected(error) {
+      console.log(error);
+      // res.status(500).send({error: error});
+    });
+  });
+  socket.on('send_message', function(data) {
+    console.log('send_message: room_key: ' + data.room_key + ', message: ' + data.message);
+    // socket.emit('broadcast_message', data);
+    io.to(data.room_key).emit('broadcast_message', data);
+  });
+
   socket.on('disconnect', function() {console.log('Client disconnected');});
 });
 

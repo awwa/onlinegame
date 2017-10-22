@@ -18,11 +18,13 @@ module.exports = {
     return db.select('SELECT * FROM games WHERE `room_key` = ?', [roomKey]).then(function onFulfilled(records) {
       if (records.length === 0) {
         return db.insert('INSERT INTO games SET ?', {room_key: roomKey}).then(function Fulfilled(id) {
+          console.log('Create a room ' + roomKey);
           return Promise.resolve('create');
         });
       } else if (records.length === 1) {
         if (records[0].status === 'open') {
           // 空いていたら鍵をかけてルームに入る
+          console.log('Enter the room ' + roomKey);
           return db.update('UPDATE games SET `status` = ? WHERE `room_key` = ?', ['lock', roomKey]).then(function onFulfilled() {
             return Promise.resolve('enter');
           });

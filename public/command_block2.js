@@ -48,6 +48,28 @@
       timeout: 5000,
       success: function(response){
         console.log(response);
+        switch (response.result) {
+          case 'create':
+            var socket = io.connect(serverpath);
+            // socket.join(room_key);
+            break;
+          case 'enter':
+            var socket2 = io.connect(serverpath);
+            // io.on('connection', function(socket2){
+            //   socket2.join(room_key);
+            //   io.to(room_key).emit('enter');
+            // });
+            break;
+        }
+
+        // socket.on('time', function(timeString) {
+        //   console.log(timeString);
+        // });
+        // TODO 発動していないようにみえる。もう一回テスト
+        // socket.on('enter', function(hoge) {
+        //   console.log('someone entered this room');
+        // });
+
         callback(response.result);
       },
       error : function (XMLHttpRequest, textStatus, errorThrown) {
@@ -107,16 +129,17 @@
   // Register the extension
   var scriptpath = document.currentScript.src.match(/.*\//);
   var serverpath = scriptpath + '';
-  console.log(scriptpath + 'socket.io/socket.io.js');
   $.getScript(scriptpath + 'socket.io/socket.io.js')
     .done(function() {
-      var socket = io.connect(serverpath);
-      socket.on('time', function(timeString) {
-        console.log(timeString);
-      });
-      socket.on('enter', function(hoge) {
-        console.log('someone entered this room');
-      });
+      // var socket = io.connect(serverpath);
+      // socket.on('time', function(timeString) {
+      //   console.log(timeString);
+      // });
+      // // TODO 発動していないようにみえる。もう一回テスト
+      // socket.on('enter', function(hoge) {
+      //   console.log('someone entered this room');
+      // });
+      console.log(scriptpath + 'socket.io/socket.io.js');
       ScratchExtensions.register('My first extension', descriptor, ext);
     });
 })({});
