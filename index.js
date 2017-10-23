@@ -116,11 +116,12 @@ io.on('connection', function(socket) {
         case 'create':  // ループを作成
           console.log('join: ' + data.room_key);
           socket.join(data.room_key);
-          // socket.to(data.room_key).emit('room_created');
+          io.to(data.room_key).emit('broadcast_create_room');
           break;
         case 'enter':   // オープン済みのルームに入室
           console.log('join: ' + data.room_key);
           socket.join(data.room_key);
+          io.to(data.room_key).emit('pairing_complete');
           // io.sockets.join(req.room_key);
           // io.to(req.room_key).emit('enter');
           break;
@@ -131,11 +132,24 @@ io.on('connection', function(socket) {
       // res.status(500).send({error: error});
     });
   });
+  // メッセージ送信イベント処理ハンドラ
   socket.on('send_message', function(data) {
     console.log('send_message: room_key: ' + data.room_key + ', message: ' + data.message);
     // socket.emit('broadcast_message', data);
     io.to(data.room_key).emit('broadcast_message', data);
   });
+  // プレイヤーを動かすイベントハンドラ
+  socket.on('move_player_to', function(data) {
+    console.log('move_player_to: room_key: ' + data.room_key + ', color: ' + data.color + ', move_x_to: ' + data.move_x_to);
+    io.to(data.room_key).emit('broadcast_move_player_to', data);
+  });
+  // 指定したボールを生成
+  socket.on('spawn_ball', function(data) {
+    console.log('spawn_ball: room_key: ' + data.room_key + ', color: ' + data.color + ', x: ' + data.x + ', y: ' + data.y);
+    io.to(data.room_key).emit('broadcast_spawn_ball', data);
+  });
+
+
 
   socket.on('disconnect', function() {console.log('Client disconnected');});
 });
