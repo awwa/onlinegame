@@ -146,7 +146,7 @@ io.on('connection', function(socket) {
   // 指定したボールを生成
   socket.on('spawn_ball', function(data) {
     console.log('spawn_ball: room_key: ' + data.room_key + ', color: ' + data.color + ', x: ' + data.x + ', y: ' + data.y);
-    io.to(data.room_key).emit('broadcast_spawn_ball', data);
+    socket.broadcast.to(data.room_key).emit('broadcast_spawn_ball', data);
   });
 
 
