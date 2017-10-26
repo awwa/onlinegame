@@ -62,6 +62,20 @@ module.exports = {
         });
       });
     });
+  },
+  // レコード削除
+  delete: function(query, params) {
+    return this.getPool().then(function(con) {
+      return new Promise(function(resolve, reject) {
+        con.query(query, params, function(err, res) {
+          if (err) {
+            reject(err);
+          } else {
+            resolve(res);
+          }
+        });
+      });
+    });
   }
 };
 
@@ -71,5 +85,9 @@ module.exports = {
 // });
 
 // module.exports.insert('INSERT INTO games SET ?', {room_key: 'testkey02'}).then(function onFulfilled(value) {
+//   console.log(JSON.stringify(value));
+// });
+
+// module.exports.delete('DELETE FROM games WHERE `room_key` = ?', ['uma2']).then(function onFulfilled(value) {
 //   console.log(JSON.stringify(value));
 // });

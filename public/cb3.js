@@ -7,7 +7,10 @@
       var socket = io.connect(serverpath);
       var message = '';
       var room_created = false;
+      // var room_open = false;
+      // var room_locked = false;
       var pair = false;
+      var rejected = false;
       var red_player_x = 0;
       var yellow_player_x = 0;
       var red_ball_x = 0;
@@ -45,6 +48,12 @@
         pair = true;
       });
 
+      socket.on('enter_rejected', function() {
+        //
+        console.log('enter_rejected');
+        rejected = true;
+      });
+
       socket.on('broadcast_move_player_to', function(data) {
         // console.log('broadcast_move_player_to: color: ' + data.color + ', move_x_to: ' + data.move_x_to);
         if (data.color === 'red') {
@@ -65,7 +74,7 @@
         if (data.color === 'yellow') {
           yellow_ball_x = data.x;
           yellow_ball_y = data.y;
-          spwn_yellow_ball = true;
+          spawn_yellow_ball = true;
         }
       });
 
@@ -74,6 +83,38 @@
         // console.log('open_room: ' + room_key);
         socket.emit('try_create_room', {room_key: room_key});
       };
+
+      // // ルーム作成
+      // ext.create_room = function(room_key) {
+      //   console.log('create_room: ' + room_key);
+      //   $.ajax({
+      //     url: server_url + '/games/' + room_key + '/open',
+      //     type: 'POST',
+      //     dataType: 'json',
+      //     timeout: 5000,
+      //     success: function(response){
+      //       console.log(response);
+      //       switch (response.result) {
+      //         case 'create':
+      //           room_created = true;
+      //           break;
+      //         case 'open':
+      //           room_open = true;
+      //           break;
+      //         case 'locked':
+      //           room_locked = true;
+      //           break;
+      //       }
+      //     },
+      //     error : function (XMLHttpRequest, textStatus, errorThrown) {
+      //       console.log(XMLHttpRequest); // XMLHttpRequestオブジェクト
+      //       console.log(textStatus); // status は、リクエスト結果を表す文字列
+      //       console.log(errorThrown); // errorThrown は、例外オブジェクト
+      //       callback(textStatus);
+      //     },
+      //   });
+      // };
+
 
       //
       ext.received_message = function() {
@@ -110,6 +151,10 @@
         );
       };
 
+      ext.exit_room = function(room_key) {
+        socket.emit('exit_room', {room_key: room_key});
+      };
+
       // ルーム作成完了
       ext.room_created = function() {
         if (room_created === true) {
@@ -119,10 +164,37 @@
         return false;
       };
 
+      // // ルームオープン
+      // ext.room_open = function() {
+      //   if (room_open === true) {
+      //     room_open = false;
+      //     return true;
+      //   }
+      //   return false;
+      // };
+      //
+      // // ルームがロックされている
+      // ext.room_locked = function() {
+      //   if (room_locked === true) {
+      //     room_locked = false;
+      //     return true;
+      //   }
+      //   return false;
+      // };
+      //
       // ペアリング完了
       ext.paring_complete = function() {
         if (pair === true) {
           pair = false;
+          return true;
+        }
+        return false;
+      };
+
+      // リジェクト
+      ext.rejected = function() {
+        if (rejected === true) {
+          rejected = false;
           return true;
         }
         return false;
@@ -150,7 +222,7 @@
       var descriptor = {
         blocks: [
           // Block type, block name, function name
-          [' ', '%s で部屋をオープンする', 'open_room', '', ''],
+          [' ', '%s で部屋をオープンする', 'open_room', ''],
           ['r', '受信メッセージ', 'received_message'],
           ['r', 'redプレイヤーx座標', 'red_player_x'],
           ['r', 'yellowプレイヤーx座標', 'yellow_player_x'],
@@ -161,8 +233,10 @@
           [' ', 'ルーム %s にメッセージを送信 %s', 'send_message', 'room_key', 'hoge_message'],
           [' ', 'ルーム %s のプレイヤー %s のx座標を %n にする', 'move_player_to', 'room_key', 'color', 0],
           [' ', 'ルーム %s にボール %s を座標( %n , %n )から発射', 'spawn_ball', 'room_key', 'ball_color', 0, 0],
+          [' ', 'ルーム %s から退出する', 'exit_room', 'room_key'],
           ['h', 'ルーム作成完了', 'room_created'],
           ['h', 'ペアリング完了', 'paring_complete'],
+          ['h', 'リジェクトされた', 'rejected'],
           ['h', 'red_ball生成', 'spawn_red_ball'],
           ['h', 'yellow_ball生成', 'spawn_yellow_ball'],
         ]

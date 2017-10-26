@@ -28,6 +28,17 @@ var server = express()
   .get('/', function (req, res) {
   	res.send({server_hello: 'Welcome to the onlinegame server!!'});
   })
+  // // ルーム作成
+  // .post('/games/:room_key/create', function(req, res) {
+  //   if ('room_key' in req) {
+  //     game.createRoom(data.room_key).then(function onFulfilled(result) {
+  //       res.send({result: result});
+  //     }).catch(function onRejected(error) {
+  //       res.status(500).send({error: error});
+  //     });
+  //   }
+  // });
+
   // // ルーム解説＆入室
   // .post('/games/:room_key/open', function(req, res) {
   // 	if ('room_key' in req) {
@@ -122,14 +133,11 @@ io.on('connection', function(socket) {
           console.log('join: ' + data.room_key);
           socket.join(data.room_key);
           io.to(data.room_key).emit('pairing_complete');
-          // io.sockets.join(req.room_key);
-          // io.to(req.room_key).emit('enter');
           break;
       }
-      // res.send({"result": result});
     }).catch(function onRejected(error) {
       console.log(error);
-      // res.status(500).send({error: error});
+      io.to(socket.id).emit('enter_rejected');
     });
   });
   // メッセージ送信イベント処理ハンドラ
@@ -148,8 +156,12 @@ io.on('connection', function(socket) {
     console.log('spawn_ball: room_key: ' + data.room_key + ', color: ' + data.color + ', x: ' + data.x + ', y: ' + data.y);
     socket.broadcast.to(data.room_key).emit('broadcast_spawn_ball', data);
   });
-
-
+  // 部屋から退出する
+  socket.on('exit_room', function(data) {
+    console.log('exit_room: room_key: ' + data.room_key);
+    socket.leave(data.room_key);
+    game.closeRoom(data.room_key);
+  });
 
   socket.on('disconnect', function() {console.log('Client disconnected');});
 });
