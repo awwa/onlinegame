@@ -24,7 +24,6 @@
     "db-migrate": "^0.10.0-beta.24",
     "db-migrate-mysql": "^1.1.10",
     "express": "^4.16.2",
-    "morgan": "^1.9.0",
     "mysql": "^2.15.0",
     "socket.io": "^2.0.3"
   }

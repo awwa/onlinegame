@@ -1,15 +1,9 @@
 var db = require('mysql');
-// var settings = {
-//   'connectionLimit': 10,
-//   'host': 'localhost',
-//   'user': 'onlinegame',
-//   'password': process.env.MYSQL_PASSWORD,
-//   'database': 'onlinegame'
-// };
 var settings = process.env.CLEARDB_DATABASE_URL;
 var pool = db.createPool(settings);
 
 module.exports = {
+  // 接続プールの取得
   getPool: function() {
     return new Promise(function(resolve, reject) {
       pool.getConnection(function(err, con) {

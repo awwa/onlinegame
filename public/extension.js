@@ -1,14 +1,12 @@
 (function(ext) {
   var scriptpath = document.currentScript.src.match(/.*\//);
   var serverpath = scriptpath + '';
+  // Socket.IOスクリプトを読み込んでから各種挙動を定義
   $.getScript(scriptpath + 'socket.io/socket.io.js')
     .done(function() {
-
       var socket = io.connect(serverpath);
       var message = '';
       var room_created = false;
-      // var room_open = false;
-      // var room_locked = false;
       var pair = false;
       var rejected = false;
       var red_player_x = 0;
@@ -20,42 +18,28 @@
       var yellow_ball_y = 0;
       var spawn_yellow_ball = false;
 
-      // Cleanup function when the extension is unloaded
-      ext._shutdown = function() {};
-
-      // Status reporting code
-      // Use this to report missing hardware, plugin or unsupported browser
-      ext._getStatus = function() {
-
-        return {status: 2, msg: 'Ready'};
-      };
-
       // ルーム内ブロードキャストを受信
       socket.on('broadcast_message', function(data) {
-        // console.log('broadcast_message');
-        // console.log(data);
         message = data.message;
       });
 
       // 部屋の作成完了イベントハンドラ
       socket.on('broadcast_create_room', function() {
-        // console.log('broadcast_create_room');
         room_created = true;
       });
 
+      // ペアリング完了
       socket.on('pairing_complete', function() {
-        // console.log('pairing_complete');
         pair = true;
       });
 
+      // 入室拒否された
       socket.on('enter_rejected', function() {
-        //
-        console.log('enter_rejected');
         rejected = true;
       });
 
+      // プレイヤー移動
       socket.on('broadcast_move_player_to', function(data) {
-        // console.log('broadcast_move_player_to: color: ' + data.color + ', move_x_to: ' + data.move_x_to);
         if (data.color === 'red') {
           red_player_x = data.move_x_to;
         }
@@ -64,8 +48,8 @@
         }
       });
 
+      // ball生成
       socket.on('broadcast_spawn_ball', function(data) {
-        console.log('broadcast_spawn_ball: color: ' + data.color + ', x: ' + data.x + ', y: ' + data.y);
         if (data.color === 'red') {
           red_ball_x = data.x;
           red_ball_y = data.y;
@@ -78,47 +62,18 @@
         }
       });
 
-      // ルームキーで部屋をオープン
-      ext.open_room = function(room_key) {
-        // console.log('open_room: ' + room_key);
-        socket.emit('try_create_room', {room_key: room_key});
+      // Cleanup function when the extension is unloaded
+      ext._shutdown = function() {};
+
+      // Status reporting code
+      // Use this to report missing hardware, plugin or unsupported browser
+      ext._getStatus = function() {
+        return {status: 2, msg: 'Ready'};
       };
 
-      // // ルーム作成
-      // ext.create_room = function(room_key) {
-      //   console.log('create_room: ' + room_key);
-      //   $.ajax({
-      //     url: server_url + '/games/' + room_key + '/open',
-      //     type: 'POST',
-      //     dataType: 'json',
-      //     timeout: 5000,
-      //     success: function(response){
-      //       console.log(response);
-      //       switch (response.result) {
-      //         case 'create':
-      //           room_created = true;
-      //           break;
-      //         case 'open':
-      //           room_open = true;
-      //           break;
-      //         case 'locked':
-      //           room_locked = true;
-      //           break;
-      //       }
-      //     },
-      //     error : function (XMLHttpRequest, textStatus, errorThrown) {
-      //       console.log(XMLHttpRequest); // XMLHttpRequestオブジェクト
-      //       console.log(textStatus); // status は、リクエスト結果を表す文字列
-      //       console.log(errorThrown); // errorThrown は、例外オブジェクト
-      //       callback(textStatus);
-      //     },
-      //   });
-      // };
-
-
-      //
-      ext.received_message = function() {
-        return message;
+      // ルームキーで部屋をオープン
+      ext.open_room = function(room_key) {
+        socket.emit('try_create_room', {room_key: room_key});
       };
 
       // redプレイヤーのx座標
@@ -130,15 +85,8 @@
         return yellow_player_x;
       };
 
-      // クライアントからメッセージ送信
-      ext.send_message = function(room_key, message) {
-        // console.log('send_message: room_key: ' + room_key + ', message: ' + message);
-        socket.emit('send_message', {room_key: room_key, message: message});
-      };
-
       // プレイヤーを動かす
       ext.move_player_to = function(room_key, color, move_x_to) {
-        // console.log('move_player_to: room_key: ' + room_key + ', color: ' + color + ', move_x_to: ' + move_x_to);
         socket.emit(
           'move_player_to', {room_key: room_key, color: color, move_x_to: move_x_to}
         );
@@ -164,24 +112,6 @@
         return false;
       };
 
-      // // ルームオープン
-      // ext.room_open = function() {
-      //   if (room_open === true) {
-      //     room_open = false;
-      //     return true;
-      //   }
-      //   return false;
-      // };
-      //
-      // // ルームがロックされている
-      // ext.room_locked = function() {
-      //   if (room_locked === true) {
-      //     room_locked = false;
-      //     return true;
-      //   }
-      //   return false;
-      // };
-      //
       // ペアリング完了
       ext.paring_complete = function() {
         if (pair === true) {
@@ -223,14 +153,8 @@
         blocks: [
           // Block type, block name, function name
           [' ', '%s で部屋をオープンする', 'open_room', ''],
-          ['r', '受信メッセージ', 'received_message'],
           ['r', 'redプレイヤーx座標', 'red_player_x'],
           ['r', 'yellowプレイヤーx座標', 'yellow_player_x'],
-          ['r', 'red_ball x座標', 'red_ball_x'],
-          ['r', 'red_ball y座標', 'red_ball_y'],
-          ['r', 'yellow_ball x座標', 'yellow_ball_x'],
-          ['r', 'yellow_ball y座標', 'yellow_ball_y'],
-          [' ', 'ルーム %s にメッセージを送信 %s', 'send_message', 'room_key', 'hoge_message'],
           [' ', 'ルーム %s のプレイヤー %s のx座標を %n にする', 'move_player_to', 'room_key', 'color', 0],
           [' ', 'ルーム %s にボール %s を座標( %n , %n )から発射', 'spawn_ball', 'room_key', 'ball_color', 0, 0],
           [' ', 'ルーム %s から退出する', 'exit_room', 'room_key'],
@@ -242,7 +166,6 @@
         ]
       };
 
-      console.log(scriptpath + 'socket.io/socket.io.js');
-      ScratchExtensions.register('My first extension', descriptor, ext);
+      ScratchExtensions.register('Onlinegameエクステンション', descriptor, ext);
     });
 })({});
