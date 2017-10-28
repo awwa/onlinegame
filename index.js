@@ -38,10 +38,6 @@ io.on('connection', function(socket) {
       io.to(socket.id).emit('enter_rejected');
     });
   });
-  // メッセージ送信イベント処理ハンドラ
-  socket.on('send_message', function(data) {
-    io.to(data.room_key).emit('broadcast_message', data);
-  });
   // プレイヤーを動かすイベントハンドラ
   socket.on('move_player_to', function(data) {
     io.to(data.room_key).emit('broadcast_move_player_to', data);
