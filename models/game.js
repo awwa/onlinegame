@@ -26,10 +26,3 @@ module.exports = {
     return db.delete('DELETE FROM games WHERE `room_key` = ?', [roomKey]);
   }
 };
-
-// TEST
-// module.exports.openRoom('uma07').then(function onFullfilled(value) {
-//   console.log(JSON.stringify(value));
-// }).catch(function onRejected(error) {
-//   console.log(JSON.stringify(error));
-// });

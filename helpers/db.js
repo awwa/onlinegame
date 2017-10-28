@@ -1,6 +1,6 @@
+var SETTINGS = process.env.DATABASE_URL || process.env.CLEARDB_DATABASE_URL;
 var db = require('mysql');
-var settings = process.env.CLEARDB_DATABASE_URL;
-var pool = db.createPool(settings);
+var pool = db.createPool(SETTINGS);
 
 module.exports = {
   // 接続プールの取得
@@ -23,6 +23,7 @@ module.exports = {
           if (err) {
             reject(err);
           } else {
+            con.release();
             resolve(res);
           }
         });
@@ -37,6 +38,7 @@ module.exports = {
           if (err) {
             reject(err);
           } else {
+            con.release();
             resolve(res.insertId);
           }
         });
@@ -51,6 +53,7 @@ module.exports = {
           if (err) {
             reject(err);
           } else {
+            con.release();
             resolve(res);
           }
         });
@@ -65,6 +68,7 @@ module.exports = {
           if (err) {
             reject(err);
           } else {
+            con.release();
             resolve(res);
           }
         });
@@ -72,16 +76,3 @@ module.exports = {
     });
   }
 };
-
-// TEST
-// module.exports.select('SELECT * FROM games WHERE `room_key` = ?', ['hogekey']).then(function onFulfilled(value) {
-//   console.log(JSON.stringify(value));
-// });
-
-// module.exports.insert('INSERT INTO games SET ?', {room_key: 'testkey02'}).then(function onFulfilled(value) {
-//   console.log(JSON.stringify(value));
-// });
-
-// module.exports.delete('DELETE FROM games WHERE `room_key` = ?', ['uma2']).then(function onFulfilled(value) {
-//   console.log(JSON.stringify(value));
-// });

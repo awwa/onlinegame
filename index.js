@@ -24,7 +24,7 @@ io.on('connection', function(socket) {
     // ルームへの入室処理結果に応じてsocketのルーム生成やjoinを制御する
     game.openRoom(data.room_key).then(function onFulfilled(result) {
       switch (result) {
-        case 'create':  // ループを作成
+        case 'create':  // ルームを作成
           socket.join(data.room_key);
           io.to(data.room_key).emit('broadcast_create_room');
           break;
@@ -34,6 +34,7 @@ io.on('connection', function(socket) {
           break;
       }
     }).catch(function onRejected(error) {
+      // ルームへの入室拒否
       io.to(socket.id).emit('enter_rejected');
     });
   });
