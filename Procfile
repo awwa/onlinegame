@@ -1,1 +1,1 @@
-web: npm start
+web: DEBUG=socket.io:socket npm start
