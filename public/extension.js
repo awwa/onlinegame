@@ -5,7 +5,6 @@
   $.getScript(scriptpath + 'socket.io/socket.io.js')
     .done(function() {
       var socket = io.connect(serverpath);
-      var message = '';
       var room_created = false;
       var pair = false;
       var rejected = false;
@@ -17,11 +16,6 @@
       var yellow_ball_x = 0;
       var yellow_ball_y = 0;
       var spawn_yellow_ball = false;
-
-      // ルーム内ブロードキャストを受信
-      socket.on('broadcast_message', function(data) {
-        message = data.message;
-      });
 
       // 部屋の作成完了イベントハンドラ
       socket.on('broadcast_create_room', function() {
